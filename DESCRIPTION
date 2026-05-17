@@ -1,17 +1,25 @@
 Package: GoogolGame
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A Shiny Implementation of the Googol Game
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "David", "Cleve",
+      email = "david.cleve@student.uva.nl",
       role = c("aut", "cre")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: A Shiny implementation of the Googol Game. One player
+    enters a sequence of numbers and the other sees them one at a time,
+    deciding at each step whether to select the current number or continue.
+    The goal is to select the highest number in the sequence. Alternatively, 
+    players can choose to generate numbers randomly.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
+Imports:
+  checkmate (>= 2.3.4)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
