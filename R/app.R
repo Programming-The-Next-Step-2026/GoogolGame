@@ -10,10 +10,6 @@
 #' @export
 run_app <- function() {
 
-  # Calling Shiny from the library is not strictly necessary since Shiny is
-  # imported, but lintr is not satisfied if I don't do it so it is here for now.
-  library(shiny)
-
   # The entire UI is driven by a single page switcher in the server.
   # output$page renders setup, game, or result depending on game state.
   ui <- fluidPage(
