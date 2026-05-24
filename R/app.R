@@ -1,175 +1,198 @@
-#' Launch the Googol Game Shiny app
+#' Run the Googol Game app
 #'
+#' @details Launches an interactive Shiny app for the Googol Game. The app has
+#'   three stages: setup (choose a random or manual sequence), game (reveal
+#'   cards one at a time and pick the highest), and result (win or loss message
+#'   with an option to play again).
+#' @examples
+#' if (interactive()) run_app()
+#' @import shiny
 #' @export
 run_app <- function() {
+
+  # Calling Shiny from the library is not strictly necessary since Shiny is
+  # imported, but lintr is not satisfied if I don't do it so it is here for now.
   library(shiny)
 
+  # The entire UI is driven by a single page switcher in the server.
+  # output$page renders setup, game, or result depending on game state.
   ui <- fluidPage(
-    titlePanel("Googol Game"),
-    tags$head(tags$style(HTML("
-      .card-row {
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-        margin: 24px 0;
-      }
-      .card {
-        width: 100px;
-        height: 150px;
-        border-radius: 10px;
-        border: 3px solid #ccc;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        font-weight: bold;
-      }
-      /* Face down: not yet revealed */
-      .card-hidden {
-        background-color: #2c3e50;
-        color: #2c3e50;
-      }
-      /* Currently revealed card */
-      .card-current {
-        background-color: #ffffff;
-        border-color: #3498db;
-      }
-      /* Cards the player chose to pass */
-      .card-passed {
-        background-color: #ecf0f1;
-        color: #95a5a6;
-      }
-      /* Result: card the player picked */
-      .card-picked {
-        background-color: #ffffff;
-        border-color: #3498db;
-      }
-      /* Result: highest number in the sequence */
-      .card-winner {
-        background-color: #d5f5e3;
-        border-color: #27ae60;
-      }
-      /* Result: player picked the highest — win */
-      .card-picked-winner {
-        background-color: #d5f5e3;
-        border-color: #27ae60;
-        box-shadow: 0 0 10px #27ae60;
-      }
-    "))),
-    # uiOutput renders different screens dynamically based on game state
-    # State 1: setup — choose random or manual mode, set n, enter numbers if manual
-    # State 2: game — shows cards face down, reveals one at a time
-    # State 3: result — all cards face up, picked and highest card highlighted
-    uiOutput("screen")
+    titlePanel("The Googol Game"),
+    uiOutput("page")
   )
 
   server <- function(input, output, session) {
-    # reactiveValues persists game state across user interactions
-    state <- reactiveValues(
-      screen = "setup",      # which screen to display: "setup", "game", or "result"
-      sequence = NULL,       # the vector of numbers for the current game
-      current_index = 1,     # which card has been flipped (1 = first card revealed)
-      picked = NULL          # the value the player chose to stop at
-    )
 
-    # Switch between screens by replacing the entire UI based on state$screen
-    output$screen <- renderUI({
-      switch(state$screen,
-        setup = tagList(
-          radioButtons("mode", "Mode",
-            choices = c("Random" = "random", "Manual entry" = "manual")
-          ),
-          numericInput("n", "Number of values", value = 3, min = 2, step = 1),
-          uiOutput("manual_inputs"),
-          actionButton("start", "Start Game")
-        ),
-        game = {
-          # Delegate card state logic to game_logic.R
-          states <- get_card_states(state$sequence, state$current_index)
-          tagList(
-            tags$div(class = "card-row",
-              lapply(seq_along(state$sequence), function(i) {
-                css_class <- paste("card", paste0("card-", states[i]))
-                label <- if (states[i] == "hidden") "?" else state$sequence[i]
-                tags$div(class = css_class, label)
-              })
-            ),
-            actionButton("pick", "Pick this card"),
-            # Next button is hidden on the last card, forcing the player to pick
-            if (state$current_index < length(state$sequence))
-              actionButton("next_num", "Flip next card")
-          )
-        },
-        result = {
-          picked <- state$picked
-          max_val <- max(state$sequence)
-          tagList(
-            h2(if (is_winner(picked, state$sequence)) "You win!" else "You lose!"),
-            # Show all cards face up; highlight the picked and highest cards
-            tags$div(class = "card-row",
-              lapply(seq_along(state$sequence), function(i) {
-                num <- state$sequence[i]
-                css_class <- paste("card", if (num == picked && num == max_val) "card-picked-winner"
-                                           else if (num == picked) "card-picked"
-                                           else if (num == max_val) "card-winner"
-                                           else "card-passed")
-                tags$div(class = css_class, num)
-              })
-            ),
-            actionButton("play_again", "Play Again")
-          )
-        }
-      )
-    })
+    # Tracks how many number rows the player has added in manual mode.
+    # Starts at 1 so there is always at least one row visible.
+    n_rows <- reactiveVal(1)
 
-    # Dynamically render one numericInput per value when in manual mode
-    output$manual_inputs <- renderUI({
-      req(input$mode == "manual", input$n)
-      lapply(seq_len(input$n), function(i) {
-        numericInput(paste0("num_", i), paste("Number", i), value = NA, min = 0, max = 1e6)
-      })
-    })
+    # Holds the finalized game sequence once the player clicks Start.
+    # NULL until Start is clicked, which signals the game has not yet begun.
+    sequence <- reactiveVal(NULL)
 
-    observeEvent(input$start, {
-      n <- input$n
-      if (input$mode == "random") {
-        state$sequence <- generate_sequence(n)
-        state$current_index <- 1
-        state$picked <- NULL
-        state$screen <- "game"
+    # Tracks which card is currently being revealed. Resets to 1 on Start.
+    current_index <- reactiveVal(1)
+
+    # Stores the value the player picked, NULL until they pick
+    picked <- reactiveVal(NULL)
+
+    # Switch between setup, game, and result pages based on game state.
+    # sequence() == NULL: setup; picked() == NULL: game; otherwise: result.
+    output$page <- renderUI({
+      if (is.null(sequence())) {
+        uiOutput("setup")
+      } else if (is.null(picked())) {
+        tagList(uiOutput("cards"), uiOutput("game_buttons"))
       } else {
-        # Collect values from dynamically generated inputs
-        numbers <- sapply(seq_len(n), function(i) input[[paste0("num_", i)]])
-        # create_manual_sequence validates input and throws an error if invalid
-        tryCatch({
-          state$sequence <- create_manual_sequence(numbers)
-          state$current_index <- 1
-          state$picked <- NULL
-          state$screen <- "game"
-        }, error = function(e) {
-          # Show the validation error to the player without crashing the app
-          showNotification(conditionMessage(e), type = "error")
-        })
+        uiOutput("result")
       }
     })
 
+    # --- Setup ---
+
+    # Append a new row each time the player clicks "Add number"
+    observeEvent(input$add_row, {
+      n_rows(n_rows() + 1)
+    })
+
+    # Render the setup page with instructions, sequence type selector, and inputs
+    output$setup <- renderUI({
+      tagList(
+        p("Choose how to generate the sequence of numbers (i.e. Random or Manual)."),
+        tags$ul(
+          tags$li("Random: the app generates a sequence of random numbers for you.
+                   Choose how many cards you want."),
+          tags$li("Manual: enter your own numbers one at a time. Use the multiplier
+                   dropdown to enter large numbers (e.g. 2 x Googol). You need at
+                   least 2 numbers.")
+        ),
+        # Let the player choose between a randomly generated or manually entered sequence
+        radioButtons("mode", "Sequence type",
+          choices = c("Random" = "random", "Manual" = "manual")
+        ),
+        # Show number-of-cards input only when random mode is selected
+        conditionalPanel("input.mode == 'random'",
+          numericInput("n_cards", "Number of cards", value = 3, min = 2)
+        ),
+        # Show manual entry controls only when manual mode is selected.
+        # Each number gets its own row with a base value and multiplier dropdown.
+        # The player clicks "Add number" to append a new row.
+        conditionalPanel("input.mode == 'manual'",
+          uiOutput("manual_inputs"),
+          actionButton("add_row", "Add number")
+        ),
+        actionButton("start", "Start game")
+      )
+    })
+
+    # Render one numericInput + selectInput pair per row.
+    # Input IDs are indexed (e.g. number_1, multiplier_1) so each row
+    # can be read independently when building the sequence.
+    # Existing input values are read with isolate() to preserve what the
+    # player entered when a new row is added.
+    output$manual_inputs <- renderUI({
+      lapply(seq_len(n_rows()), function(i) {
+        num_val <- isolate(input[[paste0("number_", i)]])
+        mul_val <- isolate(input[[paste0("multiplier_", i)]])
+        fluidRow(
+          column(6, numericInput(paste0("number_", i), paste("Number", i),
+            value = if (is.null(num_val)) 0 else num_val, min = 0)),
+          column(6, selectInput(paste0("multiplier_", i), "Multiplier",
+            choices = c("None" = 1, "Million" = 1e6, "Billion" = 1e9,
+                        "Trillion" = 1e12, "Googol" = 1e100),
+            selected = if (is.null(mul_val)) 1 else mul_val))
+        )
+      })
+    })
+
+    # Build the sequence using game_logic functions when the player clicks Start.
+    # In manual mode, read each row's number and multiplier, multiply them,
+    # then pass the resulting vector to validate_manual_sequence() for validation.
+    # Resets current_index and picked so a new game always starts fresh.
+    observeEvent(input$start, {
+      current_index(1)
+      picked(NULL)
+      if (input$mode == "random") {
+        sequence(generate_sequence(input$n_cards))
+      } else {
+        vals <- sapply(seq_len(n_rows()), function(i) {
+          input[[paste0("number_", i)]] *
+            as.numeric(input[[paste0("multiplier_", i)]])
+        })
+        # Catch validation errors from validate_manual_sequence() and show a
+        # notification instead of crashing the app
+        tryCatch(
+          sequence(validate_manual_sequence(vals)),
+          error = function(e) showNotification(conditionMessage(e), type = "error")
+        )
+      }
+    })
+
+    # --- Game ---
+
+    # Render one card per number in the sequence once the game has started.
+    # get_card_states() assigns each card a state ("passed", "current", "hidden")
+    # which determines what the player sees: passed and current cards show their
+    # number, hidden cards show a placeholder.
+    output$cards <- renderUI({
+      req(sequence())
+      states <- get_card_states(sequence(), current_index())
+      lapply(seq_along(sequence()), function(i) {
+        if (states[i] == "hidden") {
+          div("?")
+        } else {
+          div(sequence()[i])
+        }
+      })
+    })
+
+    # Render Pick and Next buttons once the game has started.
+    # Next is disabled on the last card, forcing the player to pick.
+    output$game_buttons <- renderUI({
+      req(sequence())
+      is_last <- current_index() == length(sequence())
+      tagList(
+        actionButton("pick", "Pick this number"),
+        if (!is_last) actionButton("next_card", "Next")
+      )
+    })
+
+    # Advance to the next card when the player clicks Next
+    observeEvent(input$next_card, {
+      current_index(current_index() + 1)
+    })
+
+    # --- Result ---
+
+    # Record the current number as the player's pick when they click Pick
     observeEvent(input$pick, {
-      state$picked <- get_current_number(state$sequence, state$current_index)
-      state$screen <- "result"
+      picked(sequence()[current_index()])
     })
 
-    observeEvent(input$next_num, {
-      state$current_index <- state$current_index + 1
+    # Show win or loss message after the player picks, with a restart button.
+    # is_winner() compares the picked value against the full sequence.
+    output$result <- renderUI({
+      req(picked())
+      tagList(
+        if (is_winner(picked(), sequence())) {
+          p("You won! That was the highest number.")
+        } else {
+          p(paste("You lost. The highest number was", max(sequence())))
+        },
+        actionButton("restart", "Play again")
+      )
     })
 
-    # Reset all state to allow a fresh game without restarting the app
-    observeEvent(input$play_again, {
-      state$screen <- "setup"
-      state$sequence <- NULL
-      state$current_index <- 1
-      state$picked <- NULL
+    # Reset all game state when the player clicks Play again, returning to setup
+    observeEvent(input$restart, {
+      sequence(NULL)
+      picked(NULL)
+      current_index(1)
+      n_rows(1)
     })
   }
 
+  # Launch the Shiny app
   shinyApp(ui, server)
 }

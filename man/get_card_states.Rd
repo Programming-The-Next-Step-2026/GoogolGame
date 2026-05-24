@@ -12,7 +12,8 @@ get_card_states(sequence, current_index)
 \item{current_index}{The index of the card currently revealed}
 }
 \value{
-A character vector with one entry per card: "passed", "current", or "hidden"
+A character vector with one entry per card: "passed", "current",
+or "hidden"
 }
 \description{
 Get the display state of each card
@@ -20,7 +21,10 @@ Get the display state of each card
 \details{
 Determines the state of each card based on how far the player has
   progressed. Cards before the current index are "passed", the current card
-  is "current", and unrevealed cards are "hidden".
+  is "current", and unrevealed cards are "hidden". In the Shiny UI, each
+  card needs to render differently depending on its state (i.e. passed cards
+  greyed out, current card highlighted in blue, hidden cards face-down); this
+  function provides the state labels to drive that styling.
 }
 \examples{
 get_card_states(c(42, 7, 198), 1)

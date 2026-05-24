@@ -16,7 +16,7 @@ A numeric vector of length n
 Generate a sequence of random numbers
 }
 \details{
-Samples n unique integers from 0 to 100 without replacement.
+Samples n unique integers from 0 to 1000 without replacement.
 }
 \examples{
 generate_sequence()

@@ -2,10 +2,19 @@
 % Please edit documentation in R/app.R
 \name{run_app}
 \alias{run_app}
-\title{Launch the Googol Game Shiny app}
+\title{Run the Googol Game app}
 \usage{
 run_app()
 }
 \description{
-Launch the Googol Game Shiny app
+Run the Googol Game app
+}
+\details{
+Launches an interactive Shiny app for the Googol Game. The app has
+  three stages: setup (choose a random or manual sequence), game (reveal
+  cards one at a time and pick the highest), and result (win or loss message
+  with an option to play again).
+}
+\examples{
+if (interactive()) run_app()
 }
