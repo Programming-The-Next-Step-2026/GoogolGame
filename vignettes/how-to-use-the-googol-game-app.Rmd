@@ -1,0 +1,74 @@
+---
+title: "How to use the Googol Game app"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to use the Googol Game app}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GoogolGame)
+```
+
+## What is the Googol Game?
+
+The Googol Game is based on the mathematical Secretary Problem. A sequence of
+numbers is revealed one at a time. Your goal is to pick the highest number in
+the sequence — but once you pass a number, you cannot go back. You win only if
+the number you pick turns out to be the highest in the entire sequence,
+including numbers you never saw.
+
+## How to launch the app
+
+```{r, eval = FALSE}
+run_app()
+```
+
+## Step-by-step instructions
+
+### Step 1: Choose a sequence type
+
+When the app opens, choose how to generate the sequence of numbers:
+
+- **Random**: the app generates a sequence of random numbers for you. Enter
+  how many cards you want and click **Start game**.
+- **Manual**: enter your own numbers one at a time. For each number, type a
+  value and optionally select a multiplier (e.g. select `2` and `Googol` to
+  enter 2 Googol). Click **Add number** to add another number. You need at 
+  least 2 numbers and you can add as many numbers as you want. 
+  **Note**: manual entry requires a second person — one who enters the numbers
+  and one who plays the game! Hand the keyboard to a friend to enter the 
+  numbers and don't peek at the screen ;)
+
+### Step 2: Play the game
+
+After clicking **Start game**, the cards are revealed one at a time:
+
+- Cards you have already seen are shown with their number.
+- The current card shows its number and is the one you can pick.
+- Cards not yet revealed are shown as `?`.
+
+At each card you have two choices:
+
+- Click **Pick this number** to select the current card as your answer.
+- Click **Next** to pass and reveal the next card.
+
+On the last card, only **Pick this number** is available — you must pick.
+
+### Step 3: See the result
+
+After picking, the app shows whether you won or lost:
+
+- **Win**: your chosen number was the highest in the sequence.
+- **Loss**: a higher number existed elsewhere in the sequence, along with what
+  that number was.
+
+Click **Play again** to return to the setup page and start a new game.

@@ -8,3 +8,7 @@ The basic idea is simple: a set of cards (e.g. 10) each contains a random number
 
 My application will allow players to use card sets of different sizes, with values either entered manually or generated randomly.
 The game can be used to explore optimal stopping theory and may also have applications in research or education.
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/Programming-The-Next-Step-2026/GoogolGame/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Programming-The-Next-Step-2026/GoogolGame/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
