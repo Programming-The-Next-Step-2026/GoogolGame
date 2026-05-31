@@ -328,13 +328,13 @@ server <- function(input, output, session) {
     # Print win or loss message in large bold text
     tagList(if (is_winner(picked(), sequence())) {
       p("You won! That was the highest number.",
-        style = "font-size: 20px; font-weight: bold;")
+        style = "font-size: 20px; font-weight: bold; color: #28a745;")
     } else {
       p(paste("You lost! The highest number was", max_label),
-        style = "font-size: 20px; font-weight: bold;")
+        style = "font-size: 20px; font-weight: bold; color: #dc3545;")
     },
     # Add action button to restart the game
-    actionButton("restart", "Play again"))
+    div(style = "text-align: center;", actionButton("restart", "Play again")))
   })
 
   # Reset all game state when the player clicks Play again, returning to setup.
