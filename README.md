@@ -8,7 +8,7 @@
 
 You just finished your workout and it's time to shower. But first — that email you've been putting off all day. Then the dishes, and the floor isn't going to vacuum itself. After all that housework you deserve a little reward, so you sit down to finish your favourite series. By now the sweat has long dried, so it barely matters anyway. More importantly, it's late and your roommate is asleep, so it would be rude to shower! And you were planning to work out again tomorrow anyways — so what's the point of showering at all? You could go on like this forever.
 
-The question is: **when is the right moment**? To stop and say: now I decide to do it?
+The question is: **when is the right moment**? To stop and say: now I decide to do it.
 
 To take the shower, to take out the trash, or to pick the card with the highest number…
 
