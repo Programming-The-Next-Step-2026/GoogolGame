@@ -21,7 +21,7 @@ RoxygenNote: 7.3.3
 Imports:
     checkmate (>= 2.3.4),
     shiny (>= 1.13.0)
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
     shinytest2,

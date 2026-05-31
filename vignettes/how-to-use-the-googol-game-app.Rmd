@@ -14,56 +14,80 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(GoogolGame)
-```
-
 ## What is the Googol Game?
 
-The Googol Game is based on the mathematical Secretary Problem. A sequence of
-numbers is revealed one at a time. Your goal is to pick the highest number in
-the sequence — but once you pass a number, you cannot go back. You win only if
-the number you pick turns out to be the highest in the entire sequence,
-including numbers you never saw.
+The Googol Game is a gambling scenario first described by the American writer 
+Martin Gardner. A sequence of numbers is revealed one at a time. Your goal is 
+to pick the highest number in the sequence — but once you pass a number, you 
+cannot go back. You win only if the number you pick turns out to be the highest
+in the entire sequence, including numbers you never saw.
+
+## How to install the app
+
+```{r, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("Programming-The-Next-Step-2026/GoogolGame")
+```
 
 ## How to launch the app
 
 ```{r, eval = FALSE}
-run_app()
+library(GoogolGame)
+play_googol()
 ```
 
-## Step-by-step instructions
+## Scenario
 
-### Step 1: Choose a sequence type
+**Purpose**: scenario that describes how to use the GoogolGame app.
+
+**User**: everybody that is interested in the Googol Game or optimal stopping theory.
+It is especially fun if you play it together with a second person!
+
+**Equipment**: any computer with a supported browser. You must have installed R. All
+other dependencies will be installed automatically when downloading the package.
+
+**Scenario**:
+
+**Step 1: Choose a sequence type**
 
 When the app opens, choose how to generate the sequence of numbers:
 
 - **Random**: the app generates a sequence of random numbers for you. Enter
-  how many cards you want and click **Start game**.
+  how many cards you want (e.g. 3) and click **Start game**.
+  
+<img src="images/random_generation.png" width="100%" />
+
 - **Manual**: enter your own numbers one at a time. For each number, type a
   value and optionally select a multiplier (e.g. select `2` and `Googol` to
   enter 2 Googol). Click **Add number** to add another number. You need at 
-  least 2 numbers and you can add as many numbers as you want. 
+  least 2 numbers and you can add as many numbers as you want.
+
+<img src="images/manual_generation.png" width="100%" />
+
   **Note**: manual entry requires a second person — one who enters the numbers
   and one who plays the game! Hand the keyboard to a friend to enter the 
-  numbers and don't peek at the screen ;)
+  numbers and don't peek at the screen.
 
-### Step 2: Play the game
+**Step 2: Play the game**
 
-After clicking **Start game**, the cards are revealed one at a time:
+After clicking **Start game**, all cards are shown face-down in blue. Click
+**Reveal first card** to turn over the first card.
 
-- Cards you have already seen are shown with their number.
-- The current card shows its number and is the one you can pick.
-- Cards not yet revealed are shown as `?`.
+<img src="images/reveal_first_card.png" width="100%" />
 
-At each card you have two choices:
+From there, after each reveal you have two choices:
 
-- Click **Pick this number** to select the current card as your answer.
-- Click **Next** to pass and reveal the next card.
+- Click **Pick this number** if you think the current card (highlighted in
+  green) is the highest.
+- Click **Next** to pass it and reveal the next card. Passed cards turn grey.
+
+<img src="images/next_or_pick.png" width="100%" />
 
 On the last card, only **Pick this number** is available — you must pick.
 
-### Step 3: See the result
+<img src="images/pick_this_number.png" width="100%" />
+
+**Step 3: See the result**
 
 After picking, the app shows whether you won or lost:
 
@@ -71,4 +95,33 @@ After picking, the app shows whether you won or lost:
 - **Loss**: a higher number existed elsewhere in the sequence, along with what
   that number was.
 
+<img src="images/win_or_loss.png" width="100%" />
+
 Click **Play again** to return to the setup page and start a new game.
+
+## Flowchart
+
+The flowchart below shows the full flow of the app, distinguishing between
+user actions and the software functions triggered behind the scenes.
+
+**Colours**: <span style="color:#2c7be5">■</span> blue = user action,
+<span style="color:#28a745">■</span> green = software action.
+
+<img src="images/flowchart.png" width="80%" />
+
+## Extra: optimal stopping theory
+
+Is there a strategy that maximises your chances of picking the highest number?
+Yes — and the answer comes from mathematics.
+
+The optimal strategy is to let the first 37% of cards pass without
+picking, no matter how high they are. After that, pick the next card that is
+higher than all the cards you have already seen. If no such card appears, pick
+the last card.
+
+This strategy gives you approximately a 37% chance of picking the highest
+number, regardless of how many cards there are. Remarkably, no other strategy
+can do better in the long run.
+
+Try it out: with 10 cards, skip the first 3 or 4 and then pick the next card
+that beats them all.
