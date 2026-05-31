@@ -29,7 +29,7 @@ including numbers you never saw.
 ## How to launch the app
 
 ```{r, eval = FALSE}
-run_app()
+play_googol()
 ```
 
 ## Step-by-step instructions
