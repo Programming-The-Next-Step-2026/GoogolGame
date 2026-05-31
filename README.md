@@ -6,13 +6,13 @@
 
 ## Do You Know This Problem? 
 
-You just finished your workout and it's time to shower. But first — that email you've been putting off all day. Then the dishes, and the floor isn't going to vacuum itself. After all that housework you deserve a little reward, so you sit down to finish your favourite series. By now the sweat has long dried, so it barely matters anyway. And it's late and your roommates are asleep, so it would be rude to shower. And you were planning to work out again tomorrow anyways — so what's the point of showering at all? You could go on like this forever.
+You just finished your workout and it's time to shower. But first — that email you've been putting off all day. Then the dishes, and the floor isn't going to vacuum itself. After all that housework you deserve a little reward, so you sit down to finish your favourite series. By now the sweat has long dried, so it barely matters anyway. More importantly, it's late and your roommate is asleep, so it would be rude to shower! And you were planning to work out again tomorrow anyways — so what's the point of showering at all? You could go on like this forever.
 
 The question is: **when is the right moment**? To stop and say: now I decide to do it?
 
 To take the shower, to take out the trash, or to pick the card with the highest number…
 
-The card with the highest number, you ask? The idea comes from Martin Gardner who first described a gambling game called Googol.
+The card with the highest number, you ask? The idea comes from the American writer Martin Gardner who first described a gambling game called Googol.
 
 ## What is the Googol Game?
 
@@ -32,7 +32,8 @@ devtools::install_github("Programming-The-Next-Step-2026/GoogolGame")
 ## Usage
 
 ```r
-GoogolGame::play_googol()
+library(GoogolGame)
+play_googol()
 ```
 
 ## Features
